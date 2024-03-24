@@ -38,26 +38,38 @@ fn main() {
 fn output_tail_of_file(character_count: u32, number_of_lines: u32, fname: &str) {
     let reader = RevLines::new(File::open(fname).expect("Opening fname failed"));
 
-    let mut character_out = String::from("");
+    let mut lines_out = String::from("");
 
     if character_count > 0 {
-        for (iterator, line) in reader.enumerate() {
-            for character in line.expect("Reading lines failed").chars() {
+        let mut iterator: u8 = 1;
+        for line in reader {
+            let line = line.expect("Line failed");
+            let characters = line.chars();
+            let reversed_line: String = characters.rev().collect();
+
+            let mut characters_out = String::from("");
+            for character in reversed_line.chars() {
                 if iterator >= character_count.try_into().unwrap() {
                     break;
                 }
-                character_out.insert_str(0, &(character.to_string()));
-                // iterator+=1;
+                characters_out.insert(0, character);
+                iterator += 1;
+                // characters_out.insert_str(0, &(character.to_string()));
             }
-            println!(); // adds newline back in - feels hacky, will try and fix later
+            lines_out.insert_str(0, &characters_out);
 
             if iterator >= character_count.try_into().unwrap() {
                 break;
             }
+            lines_out.insert(0, '\n');
+            iterator += 1;
+            if iterator >= character_count.try_into().unwrap() {
+                break;
+            }
         }
+        print!("{}", lines_out)
     } else {
         let mut string_out = String::from("");
-        // let mut iterator = 0;
         for (iterator, line) in reader.enumerate() {
             if iterator >= number_of_lines.try_into().unwrap() {
                 break;
@@ -65,7 +77,6 @@ fn output_tail_of_file(character_count: u32, number_of_lines: u32, fname: &str) 
             let mut newl = line.expect("Reading lines failed");
             newl.push('\n');
             string_out.insert_str(0, &newl);
-            // iterator+=1;
         }
         println!("{}", string_out)
     }
